@@ -1,0 +1,71 @@
+/* ─── CSS Variables ─────────────────────────────────────────── */
+:root {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Fira Code', 'Cascadia Code', 'JetBrains Mono', 'Consolas', monospace;
+
+  /* Light theme */
+  --bg:              #f8f9fb;
+  --surface:         #ffffff;
+  --surface-alt:     #f1f3f6;
+  --border:          #e2e6ed;
+  --text-primary:    #0f1117;
+  --text-secondary:  #5c6478;
+  --text-placeholder:#9ca3b0;
+  --accent:          #6366f1;
+  --accent-glow:     rgba(99, 102, 241, 0.08);
+  --success:         #10b981;
+  --error:           #ef4444;
+  --match-bg:        rgba(99, 102, 241, 0.15);
+  --match-text:      #4338ca;
+  --match-border:    rgba(99, 102, 241, 0.35);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:              #0d0f14;
+    --surface:         #161920;
+    --surface-alt:     #1e2128;
+    --border:          #2a2e3a;
+    --text-primary:    #e8eaf2;
+    --text-secondary:  #8891a8;
+    --text-placeholder:#4a5168;
+    --accent:          #818cf8;
+    --accent-glow:     rgba(129, 140, 248, 0.1);
+    --success:         #34d399;
+    --error:           #f87171;
+    --match-bg:        rgba(129, 140, 248, 0.18);
+    --match-text:      #a5b4fc;
+    --match-border:    rgba(129, 140, 248, 0.4);
+  }
+}
+
+/* ─── Reset ─────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button, input, textarea, select {
+  font-family: inherit;
+}
+
+button { cursor: pointer; }
+
+a { color: var(--accent); text-decoration: none; }
+
+/* ─── Scrollbar ──────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-placeholder); }

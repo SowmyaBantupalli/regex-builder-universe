@@ -1,0 +1,33 @@
+.test-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.top-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.selected-info {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--accent-glow);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  flex-wrap: wrap;
+}
+
+.info-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.info-desc {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
