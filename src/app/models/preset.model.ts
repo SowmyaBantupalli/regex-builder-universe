@@ -18,3 +18,11 @@ export interface MatchResult {
   isMatch: boolean;
   index: number;
 }
+
+export interface RegexDraft {
+  name: string;
+  regex: string;
+  flags: string;
+  text: string;
+  description: string;
+}

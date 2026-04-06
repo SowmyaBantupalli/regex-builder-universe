@@ -3,6 +3,98 @@ import { MatchResult, RegexToken } from '../models/preset.model';
 
 @Injectable({ providedIn: 'root' })
 export class RegexService {
+  summarize(pattern: string): { summary: string; examples: string[] } {
+    if (!pattern) {
+      return { summary: '', examples: [] };
+    }
+
+    const normalized = pattern.replace(/^\^/, '').replace(/\$$/, '');
+    const isAnchored = pattern.startsWith('^') && pattern.endsWith('$');
+
+    if (/^\\d\+$/.test(normalized) && isAnchored) {
+      return {
+        summary: 'Matches a string containing only numbers',
+        examples: ['123', '456'],
+      };
+    }
+
+    if (/^\[a-zA-Z]\+$/.test(normalized) && isAnchored) {
+      return {
+        summary: 'Matches a string containing only letters',
+        examples: ['Hello', 'World'],
+      };
+    }
+
+    if (/^\[a-z]\+$/.test(normalized) && isAnchored) {
+      return {
+        summary: 'Matches a string containing only lowercase letters',
+        examples: ['hello', 'world'],
+      };
+    }
+
+    if (/^\[A-Z]\+$/.test(normalized) && isAnchored) {
+      return {
+        summary: 'Matches a string containing only uppercase letters',
+        examples: ['ABC', 'XYZ'],
+      };
+    }
+
+    if (/^\\d\{4}-\\d\{2}-\\d\{2}$/.test(normalized) && isAnchored) {
+      return {
+        summary: 'Matches a date formatted like YYYY-MM-DD',
+        examples: ['2025-01-01', '2024-12-31'],
+      };
+    }
+
+    if (/^\\d\{3}-\\d\{2}-\\d\{4}$/.test(normalized) && isAnchored) {
+      return {
+        summary: 'Matches a number formatted like XXX-XX-XXXX',
+        examples: ['123-45-6789', '987-65-4321'],
+      };
+    }
+
+    if (/^\\d\{10}$/.test(normalized) && isAnchored) {
+      return {
+        summary: 'Matches a 10-digit number',
+        examples: ['9876543210', '1234567890'],
+      };
+    }
+
+    if (/^\[\^\\s@]\+@\[\^\\s@]\+\\\.\[\^\\s@]\+$/.test(normalized) && isAnchored) {
+      return {
+        summary: 'Matches text that looks like an email address',
+        examples: ['test@example.com', 'user@domain.com'],
+      };
+    }
+
+    if (/^\\d\{\d+}-\\d\{\d+}-\\d\{\d+}$/.test(normalized) && isAnchored) {
+      return {
+        summary: `Matches a number formatted like ${this.toPlaceholderFormat(normalized)}`,
+        examples: this.examplesForPlaceholder(this.toPlaceholderFormat(normalized)),
+      };
+    }
+
+    const simpleClass = this.describeSimpleContent(normalized);
+    if (simpleClass && isAnchored) {
+      return {
+        summary: `Matches a string containing only ${simpleClass}`,
+        examples: this.examplesForContent(simpleClass),
+      };
+    }
+
+    if (simpleClass) {
+      return {
+        summary: `Matches ${simpleClass} within a larger string`,
+        examples: this.examplesForContent(simpleClass),
+      };
+    }
+
+    return {
+      summary: 'This regex matches a specific pattern. Breakdown shown below.',
+      examples: [],
+    };
+  }
+
   buildRegex(pattern: string, flags: string): RegExp | null {
     if (!pattern) return null;
     try {
@@ -66,8 +158,8 @@ export class RegexService {
       const ch = pattern[i];
 
       // Anchors
-      if (ch === '^') { consume('^', 'Start of string (or line with m flag)'); i++; continue; }
-      if (ch === '$') { consume('$', 'End of string (or line with m flag)'); i++; continue; }
+      if (ch === '^') { consume('^', 'Start of string'); i++; continue; }
+      if (ch === '$') { consume('$', 'End of string'); i++; continue; }
 
       // Escaped sequences
       if (ch === '\\' && i + 1 < pattern.length) {
@@ -76,12 +168,12 @@ export class RegexService {
         let quant = '';
         let exp = '';
         switch (next) {
-          case 'd': exp = 'Any digit (0–9)'; break;
-          case 'D': exp = 'Any non-digit'; break;
-          case 'w': exp = 'Any word character (a–z, A–Z, 0–9, _)'; break;
-          case 'W': exp = 'Any non-word character'; break;
-          case 's': exp = 'Any whitespace (space, tab, newline)'; break;
-          case 'S': exp = 'Any non-whitespace'; break;
+          case 'd': exp = 'Matches a digit'; break;
+          case 'D': exp = 'Matches any non-digit'; break;
+          case 'w': exp = 'Matches a word character'; break;
+          case 'W': exp = 'Matches any non-word character'; break;
+          case 's': exp = 'Matches whitespace'; break;
+          case 'S': exp = 'Matches any non-whitespace character'; break;
           case 'b': exp = 'Word boundary'; break;
           case 'B': exp = 'Non-word boundary'; break;
           case 'n': exp = 'Newline character'; break;
@@ -106,7 +198,7 @@ export class RegexService {
           end++;
         }
         const cls = pattern.slice(i, end + 1);
-        let exp = cls.startsWith('[^') ? `Any character NOT in [${cls.slice(2, -1)}]` : `Any character in [${cls.slice(1, -1)}]`;
+        let exp = cls.startsWith('[^') ? `Matches any character except ${cls.slice(2, -1)}` : `Matches one character from ${cls.slice(1, -1)}`;
         i = end + 1;
         const q = this.peekQuantifier(pattern, i);
         if (q) { exp += ' ' + q.desc; i += q.len; consume(cls + q.str, exp); } else { consume(cls, exp); }
@@ -117,24 +209,25 @@ export class RegexService {
       if (ch === '(') {
         let label = 'Capturing group';
         let lookahead = '';
-        if (pattern.slice(i + 1, i + 3) === '?:') { label = 'Non-capturing group'; lookahead = '?:'; }
-        else if (pattern.slice(i + 1, i + 3) === '?=') { label = 'Positive lookahead'; lookahead = '?='; }
-        else if (pattern.slice(i + 1, i + 4) === '?!') { label = 'Negative lookahead'; lookahead = '?!'; }
-        else if (pattern.slice(i + 1, i + 4) === '?<=') { label = 'Positive lookbehind'; lookahead = '?<='; }
-        else if (pattern.slice(i + 1, i + 5) === '?<!') { label = 'Negative lookbehind'; lookahead = '?<!'; }
+        if (pattern.slice(i + 1, i + 3) === '?:') { label = 'Starts a non-capturing group'; lookahead = '?:'; }
+        else if (pattern.slice(i + 1, i + 3) === '?=') { label = 'Starts a positive lookahead'; lookahead = '?='; }
+        else if (pattern.slice(i + 1, i + 3) === '?!') { label = 'Starts a negative lookahead'; lookahead = '?!'; }
+        else if (pattern.slice(i + 1, i + 4) === '?<=') { label = 'Starts a positive lookbehind'; lookahead = '?<='; }
+        else if (pattern.slice(i + 1, i + 4) === '?<!') { label = 'Starts a negative lookbehind'; lookahead = '?<!'; }
+        else { label = 'Starts a capturing group'; }
         consume('(' + lookahead, label);
         i += 1 + lookahead.length;
         continue;
       }
 
-      if (ch === ')') { consume(')', 'End of group'); i++; continue; }
+      if (ch === ')') { consume(')', 'Ends the group'); i++; continue; }
 
       // Alternation
       if (ch === '|') { consume('|', 'OR — match left or right side'); i++; continue; }
 
       // Dot
       if (ch === '.') {
-        let exp = 'Any character except newline';
+        let exp = 'Matches any character';
         i++;
         const q = this.peekQuantifier(pattern, i);
         if (q) { exp += ' ' + q.desc; i += q.len; consume('.' + q.str, exp); } else { consume('.', exp); }
@@ -149,7 +242,7 @@ export class RegexService {
       }
 
       // Literal character
-      let exp = `Literal character "${ch}"`;
+      let exp = `Matches the character "${ch}"`;
       i++;
       const q = this.peekQuantifier(pattern, i);
       if (q) { exp += ' ' + q.desc; i += q.len; consume(ch + q.str, exp); } else { consume(ch, exp); }
@@ -164,14 +257,14 @@ export class RegexService {
 
     if (ch === '*') {
       const lazy = pattern[i + 1] === '?';
-      return { str: lazy ? '*?' : '*', desc: lazy ? '(0 or more, lazy)' : '(0 or more times)', len: lazy ? 2 : 1 };
+      return { str: lazy ? '*?' : '*', desc: lazy ? 'for 0 or more matches, as few as possible' : 'for 0 or more matches', len: lazy ? 2 : 1 };
     }
     if (ch === '+') {
       const lazy = pattern[i + 1] === '?';
-      return { str: lazy ? '+?' : '+', desc: lazy ? '(1 or more, lazy)' : '(1 or more times)', len: lazy ? 2 : 1 };
+      return { str: lazy ? '+?' : '+', desc: lazy ? 'for 1 or more matches, as few as possible' : 'for 1 or more matches', len: lazy ? 2 : 1 };
     }
     if (ch === '?') {
-      return { str: '?', desc: '(optional — 0 or 1 time)', len: 1 };
+      return { str: '?', desc: 'optionally', len: 1 };
     }
     if (ch === '{') {
       const end = pattern.indexOf('}', i);
@@ -180,13 +273,48 @@ export class RegexService {
       const lazy = pattern[end + 1] === '?';
       const parts = inner.split(',');
       let desc = '';
-      if (parts.length === 1) desc = `(exactly ${inner} times)`;
-      else if (parts[1] === '') desc = `(${parts[0]} or more times)`;
-      else desc = `(between ${parts[0]} and ${parts[1]} times)`;
-      if (lazy) desc = desc.replace(')', ', lazy)');
+      if (parts.length === 1) desc = `exactly ${inner} times`;
+      else if (parts[1] === '') desc = `${parts[0]} or more times`;
+      else desc = `between ${parts[0]} and ${parts[1]} times`;
+      if (lazy) desc += ', as few as possible';
       const str = `{${inner}}${lazy ? '?' : ''}`;
       return { str, desc, len: end - i + 1 + (lazy ? 1 : 0) };
     }
     return null;
+  }
+
+  private describeSimpleContent(pattern: string): string | null {
+    if (/^\\d([+*]|\{\d+(,\d*)?\})?$/.test(pattern)) return 'numbers';
+    if (/^\[a-zA-Z]([+*]|\{\d+(,\d*)?\})?$/.test(pattern)) return 'letters';
+    if (/^\[a-z]([+*]|\{\d+(,\d*)?\})?$/.test(pattern)) return 'lowercase letters';
+    if (/^\[A-Z]([+*]|\{\d+(,\d*)?\})?$/.test(pattern)) return 'uppercase letters';
+    return null;
+  }
+
+  private toPlaceholderFormat(pattern: string): string {
+    return pattern
+      .replace(/\\d\{(\d+)}/g, (_, count: string) => 'X'.repeat(Number(count)))
+      .replace(/\\d/g, 'X');
+  }
+
+  private examplesForPlaceholder(placeholder: string): string[] {
+    const sample = placeholder.replace(/X/g, '1');
+    const alt = placeholder.replace(/X/g, '9');
+    return [sample, alt];
+  }
+
+  private examplesForContent(content: string): string[] {
+    switch (content) {
+      case 'numbers':
+        return ['123', '456'];
+      case 'letters':
+        return ['Hello', 'World'];
+      case 'lowercase letters':
+        return ['hello', 'world'];
+      case 'uppercase letters':
+        return ['ABC', 'XYZ'];
+      default:
+        return [];
+    }
   }
 }

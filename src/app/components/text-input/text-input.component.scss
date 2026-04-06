@@ -1,29 +1,44 @@
 .text-input-wrapper {
+  display: grid;
+  gap: 10px;
+}
+
+.field-meta {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .field-label {
-  font-size: 0.8rem;
-  font-weight: 600;
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
   color: var(--text-secondary);
 }
 
+.field-hint {
+  font-size: 0.8rem;
+  color: var(--text-placeholder);
+}
+
 .text-area {
-  font-family: var(--font-mono);
-  font-size: 0.9rem;
-  background: var(--surface);
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
+  width: 100%;
+  min-height: 188px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--panel);
   color: var(--text-primary);
-  padding: 14px;
+  font-family: var(--font-mono);
+  font-size: 0.92rem;
+  line-height: 1.65;
   resize: vertical;
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
-  line-height: 1.6;
 
   &::placeholder {
     color: var(--text-placeholder);

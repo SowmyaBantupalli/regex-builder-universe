@@ -19,7 +19,10 @@ import { PresetService } from '../../services/preset.service';
   template: `
     <div class="dropdown-wrapper" [class.open]="isOpen">
       <button class="dropdown-trigger" type="button" (click)="toggle()">
-        <span class="trigger-label">{{ selectedPreset?.name ?? 'Search Regex Presets…' }}</span>
+        <span class="trigger-copy">
+          <span class="trigger-label">{{ selectedPreset?.name ?? 'Search Regex Presets…' }}</span>
+          <span class="trigger-subtitle">{{ selectedPreset?.description ?? 'Type to filter by name, category, or description' }}</span>
+        </span>
         <span class="chevron" [class.flipped]="isOpen">▾</span>
       </button>
 
@@ -41,9 +44,10 @@ import { PresetService } from '../../services/preset.service';
             (click)="select(p)"
           >
             <div class="preset-name">{{ p.name }}</div>
+            <div class="preset-desc">{{ p.description }}</div>
             <div class="preset-meta">
               <span class="preset-category">{{ p.category }}</span>
-              <span class="preset-regex">{{ '/' + p.regex.slice(0, 30) + (p.regex.length > 30 ? '…' : '') + '/' + p.flags }}</span>
+              <span class="preset-regex">{{ '/' + p.regex.slice(0, 28) + (p.regex.length > 28 ? '…' : '') + '/' + p.flags }}</span>
             </div>
           </li>
         </ul>

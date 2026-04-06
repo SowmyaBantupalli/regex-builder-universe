@@ -14,16 +14,16 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have the 'regex-builder-universe' title`, () => {
+  it('should default to the test tab', () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.title).toEqual('regex-builder-universe');
+    expect(app.activeTab).toEqual('test');
   });
 
-  it('should render title', () => {
+  it('should render the app heading', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, regex-builder-universe');
+    expect(compiled.querySelector('h1')?.textContent).toContain('Regex Builder Universe');
   });
 });

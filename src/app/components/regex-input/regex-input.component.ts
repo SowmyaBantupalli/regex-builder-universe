@@ -9,6 +9,10 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
   imports: [CommonModule, ReactiveFormsModule],
   template: `
     <div class="regex-input-wrapper">
+      <div class="field-meta">
+        <label class="field-label">Regex Pattern</label>
+        <span class="field-hint">Supports inline flags and instant validation</span>
+      </div>
       <div class="regex-field" [class.invalid]="isInvalid" [class.has-value]="control.value">
         <span class="delimiter">/</span>
         <input
@@ -33,7 +37,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
           <span *ngIf="isInvalid" class="invalid-icon">✗</span>
         </span>
       </div>
-      <p class="error-msg" *ngIf="isInvalid && control.value">Invalid regex — check syntax</p>
+      <p class="error-msg" *ngIf="isInvalid && control.value">Invalid regex — check for missing brackets or symbols</p>
     </div>
   `,
   styleUrls: ['./regex-input.component.scss'],

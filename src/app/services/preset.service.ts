@@ -6,11 +6,11 @@ export class PresetService {
   readonly presets: RegexPreset[] = [
     {
       id: 'email',
-      name: 'Email Address',
+      name: 'Email',
       regex: '[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}',
       flags: 'g',
       example: 'Contact us at hello@example.com or support@test.org for help.',
-      description: 'Matches standard email addresses.',
+      description: 'Matches standard email format.',
       category: 'Communication',
     },
     {
@@ -37,7 +37,7 @@ export class PresetService {
       regex: '\\d+',
       flags: 'g',
       example: 'There are 42 apples and 100 oranges in 3 baskets.',
-      description: 'Matches sequences of digits.',
+      description: 'Matches one or more digits.',
       category: 'General',
     },
     {

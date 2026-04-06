@@ -1,17 +1,40 @@
 .regex-input-wrapper {
+  display: grid;
+  gap: 10px;
+}
+
+.field-meta {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.field-label {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.field-hint {
+  font-size: 0.8rem;
+  color: var(--text-placeholder);
 }
 
 .regex-field {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr auto auto auto;
   align-items: center;
-  background: var(--surface);
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
+  gap: 10px;
+  min-height: 56px;
   padding: 0 14px;
-  gap: 4px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 18px;
   transition: border-color 0.2s, box-shadow 0.2s;
 
   &:focus-within {
@@ -19,60 +42,97 @@
     box-shadow: 0 0 0 3px var(--accent-glow);
   }
 
-  &.invalid:focus-within {
+  &.invalid {
     border-color: var(--error);
-    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+    box-shadow: 0 0 0 3px var(--warning-bg);
   }
 }
 
 .delimiter {
+  color: var(--text-placeholder);
   font-family: var(--font-mono);
-  font-size: 1.1rem;
-  color: var(--accent);
-  user-select: none;
-  font-weight: 600;
+  font-size: 1rem;
 }
 
-.regex-field__input {
-  flex: 1;
-  font-family: var(--font-mono);
-  font-size: 0.95rem;
+.regex-field__input,
+.regex-field__flags {
   border: none;
   outline: none;
   background: transparent;
   color: var(--text-primary);
-  padding: 12px 6px;
-  min-width: 0;
+  font-size: 0.95rem;
+}
 
-  &::placeholder {
-    color: var(--text-placeholder);
-    font-family: var(--font-sans);
-  }
+.regex-field__input {
+  min-width: 0;
+  font-family: var(--font-mono);
 }
 
 .regex-field__flags {
-  width: 46px;
+  width: 64px;
   font-family: var(--font-mono);
-  font-size: 0.85rem;
-  border: none;
-  outline: none;
-  background: transparent;
   color: var(--text-secondary);
-  padding: 12px 4px;
-  text-align: center;
+}
+
+.regex-field__input::placeholder,
+.regex-field__flags::placeholder {
+  color: var(--text-placeholder);
 }
 
 .validity-icon {
-  font-size: 0.85rem;
-  margin-left: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: var(--surface-alt);
 }
 
-.valid-icon { color: var(--success); }
-.invalid-icon { color: var(--error); }
+.valid-icon {
+  color: var(--success);
+}
+
+.invalid-icon {
+  color: var(--error);
+}
 
 .error-msg {
-  font-size: 0.8rem;
-  color: var(--error);
   margin: 0;
-  padding-left: 14px;
+  color: var(--error);
+  font-size: 0.84rem;
+}
+
+@media (max-width: 640px) {
+  .regex-field {
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas:
+      "start input valid"
+      "flags flags flags";
+    row-gap: 6px;
+    padding: 12px 14px;
+  }
+
+  .delimiter:first-child {
+    grid-area: start;
+  }
+
+  .regex-field__input {
+    grid-area: input;
+  }
+
+  .validity-icon {
+    grid-area: valid;
+  }
+
+  .regex-field__flags {
+    grid-area: flags;
+    width: 100%;
+    border-top: 1px solid var(--border);
+    padding-top: 8px;
+  }
+
+  .regex-field > .delimiter:last-of-type {
+    display: none;
+  }
 }

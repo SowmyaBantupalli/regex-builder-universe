@@ -9,12 +9,15 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
   imports: [CommonModule, ReactiveFormsModule],
   template: `
     <div class="text-input-wrapper">
-      <label class="field-label">Test String</label>
+      <div class="field-meta">
+        <label class="field-label">Test Text</label>
+        <span class="field-hint">Paste one or more lines to see live matches</span>
+      </div>
       <textarea
         [formControl]="control"
         class="text-area"
         [placeholder]="placeholder"
-        rows="5"
+        rows="7"
         spellcheck="false"
       ></textarea>
     </div>
